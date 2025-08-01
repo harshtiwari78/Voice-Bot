@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Chatbot Test - Embedded Bot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .info-section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .test-instructions {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 1px solid #27ae60;
+        }
+        
+        .test-instructions h3 {
+            color: #27ae60;
+            margin-top: 0;
+        }
+        
+        .chatbot-info {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #ffc107;
+        }
+        
+        .chatbot-info h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .code-snippet {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Voice Chatbot Test Page</h1>
+        <p class="subtitle">Testing embedded voice chatbot integration</p>
+        
+        <div class="info-section">
+            <h2>About This Test</h2>
+            <p>This page is designed to test the embedded voice chatbot functionality. The chatbot should appear on the right side of your screen and provide voice interaction capabilities.</p>
+        </div>
+        
+        <div class="chatbot-info">
+            <h3>Chatbot Configuration</h3>
+            <p><strong>UUID:</strong> db127522-73da-4953-a7eb-c89d03170cc3</p>
+            <p><strong>Language:</strong> English (en)</p>
+            <p><strong>Position:</strong> Right side</p>
+            <p><strong>Theme:</strong> Light</p>
+        </div>
+        
+        <div class="info-section">
+            <h2>Expected Features</h2>
+            <ul class="feature-list">
+                <li>Voice recognition and speech-to-text conversion</li>
+                <li>Text-to-speech responses from the bot</li>
+                <li>Interactive chat interface on the right side</li>
+                <li>Light theme styling</li>
+                <li>Responsive design for different screen sizes</li>
+                <li>Real-time conversation capabilities</li>
+            </ul>
+        </div>
+        
+        <div class="test-instructions">
+            <h3>How to Test</h3>
+            <ol>
+                <li>Look for the chatbot widget on the right side of your screen</li>
+                <li>Click on the chatbot to activate it</li>
+                <li>Try speaking to test voice recognition</li>
+                <li>Send text messages to test text interaction</li>
+                <li>Listen for voice responses from the bot</li>
+                <li>Test different conversation scenarios</li>
+            </ol>
+        </div>
+        
+        <div class="info-section">
+            <h2>Integration Code</h2>
+            <p>The following script is embedded in this page:</p>
+            <div class="code-snippet">
+&lt;script defer src="http://localhost:3000/js/external-chatbot-voice.js"
+        data-chatbot-uuid="db127522-73da-4953-a7eb-c89d03170cc3"
+        data-language="en"
+        data-position="right"
+        data-theme="light"&gt;&lt;/script&gt;
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Voice Chatbot Test Environment | Check browser console for any errors</p>
+        </div>
+    </div>
+
+    <!-- Embedded Voice Chatbot Script -->
+    <script defer src="http://localhost:3000/js/external-chatbot-voice.js" data-chatbot-uuid="7b20ee45-e00d-4b8b-b439-dba40eb3d077" data-language="en" data-position="right" data-theme="light"></script>
+</body>
+</html>

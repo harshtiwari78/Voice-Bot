@@ -1,0 +1,42 @@
+{
+  "name": "vapi-nextjs-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.25.4",
+    "@prisma/client": "^6.12.0",
+    "@vapi-ai/web": "^2.3.8",
+    "dequal": "^2.0.3",
+    "dotenv": "^17.2.1",
+    "googleapis": "^153.0.0",
+    "next": "15.4.2",
+    "prisma": "^6.12.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "swr": "^2.2.5",
+    "use-sync-external-store": "^1.2.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

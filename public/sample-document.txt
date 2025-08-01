@@ -1,0 +1,32 @@
+Local File Storage Test Document
+
+This is a sample document for testing the local file storage functionality in the VAPI Next.js application.
+
+Company Information:
+- Name: Local Storage Solutions Inc.
+- Founded: 2024
+- Location: Secure Server Farm
+- Mission: Providing secure, local file storage for RAG-enabled voice bots
+
+Features of Local File Storage:
+1. Security: Files are stored outside the public directory
+2. Organization: Files are organized by bot UUID
+3. Access Control: Only authenticated users can access their files
+4. Metadata: Each file includes processing metadata
+5. Backup: Files are stored locally AND in Google Drive
+
+Technical Implementation:
+- Storage Location: uploads/[bot-uuid]/
+- Security: .gitignore prevents files from being committed
+- API Endpoints: Secure file access through authenticated endpoints
+- File Types: TXT, PDF, CSV, JSON, MD supported
+- Size Limit: 10MB per file
+
+Benefits:
+- Faster access to files (local storage)
+- Reduced dependency on external services
+- Better privacy and security
+- Cost-effective storage solution
+- Easy backup and migration
+
+This document should be processed and stored locally when a RAG bot is created with file uploads enabled.

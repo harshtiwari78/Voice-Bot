@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatbot Embed Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .tall-content {
+      height: 200vh; /* Make page scrollable to test fixed positioning */
+      background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+      padding: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Chatbot Embed Test Page</h1>
+    <p>This is a test page to check the embedded chatbot functionality and positioning.</p>
+    <p><strong>Test Instructions:</strong></p>
+    <ul>
+      <li>The voice bot button should appear in the bottom-right corner</li>
+      <li>It should stay fixed in position when you scroll</li>
+      <li>The button should be clickable and not move with page content</li>
+    </ul>
+    
+    <div class="tall-content">
+      <h2>Scroll Test Content</h2>
+      <p>Scroll down to test if the voice bot button stays fixed in position...</p>
+      <p>The button should remain visible and in the same position relative to the viewport.</p>
+      <p>This content is intentionally tall to enable scrolling.</p>
+      <br><br><br><br><br><br><br><br><br><br>
+      <p>More content to scroll through...</p>
+      <br><br><br><br><br><br><br><br><br><br>
+      <p>Even more content...</p>
+      <br><br><br><br><br><br><br><br><br><br>
+      <p>Bottom of the test content. The voice bot should still be visible and fixed.</p>
+    </div>
+  </div>
+
+  <!-- Chatbot script embed -->
+  <script defer 
+    src="/js/external-chatbot-voice.js" 
+    data-chatbot-uuid="61ff25b8-896e-4b74-9161-1f4872a9b53b" 
+    data-language="en" 
+    data-position="right" 
+    data-theme="light">
+  </script>
+</body>
+</html>

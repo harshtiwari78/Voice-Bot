@@ -1,0 +1,184 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Position {
+  LEFT
+  RIGHT
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+enum RagSourceType {
+  FILES
+  URL
+}
+
+enum BotStatus {
+  PENDING
+  ACTIVATING
+  ACTIVE
+  FAILED
+}
+
+enum CallStatus {
+  QUEUED
+  RINGING
+  IN_PROGRESS
+  FORWARDING
+  ENDED
+}
+
+// User model - extends Clerk user data
+model User {
+  id        String   @id // Clerk user ID
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  bots     Bot[]
+  sessions Session[]
+  calls    Call[]
+
+  @@map("users")
+}
+
+// Bot model - main bot configuration and status
+model Bot {
+  id                     String   @id @default(cuid())
+  uuid                   String   @unique // External UUID for API compatibility
+  name                   String
+  welcomeMessage         String
+  systemPrompt           String   @db.Text
+  language               String   @default("en")
+  voice                  String   @default("jennifer")
+  position               Position @default(RIGHT)
+  theme                  Theme    @default(LIGHT)
+  ragEnabled             Boolean  @default(false)
+  ragSourceType          RagSourceType?
+  ragUrl                 String?
+  status                 BotStatus @default(PENDING)
+  embedCode              String   @db.Text
+  documentsProcessed     Int      @default(0)
+  vapiAssistantId        String?
+  vapiKnowledgeBaseId    String?
+  localFilesStored       Int      @default(0)
+  localStoragePath       String?
+  activationScheduledAt  DateTime
+  activatedAt            DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Foreign keys
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relationships
+  documents Document[]
+  sessions  Session[]
+  calls     Call[]
+
+  @@map("bots")
+  @@index([userId])
+  @@index([status])
+  @@index([uuid])
+}
+
+// Document model - RAG documents and files
+model Document {
+  id           String   @id @default(cuid())
+  name         String
+  type         String
+  size         Int
+  content      String?  @db.Text
+  chunks       String[] // Array of text chunks
+  pages        Int?
+  wordCount    Int?
+  filePath     String?
+  uploadedAt   DateTime @default(now())
+  processedAt  DateTime?
+
+  // Foreign keys
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+  @@index([botId])
+}
+
+// Session model - user interaction sessions for analytics
+model Session {
+  id           String    @id @default(cuid())
+  sessionId    String    @unique // External session ID
+  startTime    DateTime  @default(now())
+  endTime      DateTime?
+  userAgent    String?
+  ipAddress    String?
+  interactions Int       @default(0)
+
+  // Foreign keys
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+  @@index([userId])
+  @@index([botId])
+  @@index([startTime])
+}
+
+// Call model - VAPI call logs and analytics
+model Call {
+  id            String     @id @default(cuid())
+  vapiCallId    String     @unique // VAPI call ID
+  assistantId   String
+  status        CallStatus
+  endedReason   String?
+  phoneNumber   String?
+  type          String?
+  cost          Float      @default(0)
+  duration      Int?       // Duration in seconds
+  transcript    String?    @db.Text
+  recording     String?    // Recording URL
+  summary       String?    @db.Text
+  messageCount  Int        @default(0)
+  createdAt     DateTime   @default(now())
+  startedAt     DateTime?
+  endedAt       DateTime?
+  updatedAt     DateTime   @updatedAt
+
+  // Foreign keys
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  botId String
+  bot   Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@map("calls")
+  @@index([userId])
+  @@index([botId])
+  @@index([assistantId])
+  @@index([status])
+  @@index([createdAt])
+}

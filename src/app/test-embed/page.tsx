@@ -4,11 +4,13 @@ import { useEffect } from 'react';
 
 export default function TestEmbedPage() {
   useEffect(() => {
-    // Dynamically load the voice bot script
+    // Dynamically load the voice bot script with dynamic UUID
+    const botUUID = 'YOUR_BOT_UUID_HERE'; // Replace or fetch this UUID dynamically as needed
+
     const script = document.createElement('script');
     script.defer = true;
     script.src = '/js/external-chatbot-voice.js';
-    script.setAttribute('data-chatbot-uuid', 'test-bot-uuid'); // This is just for testing
+    script.setAttribute('data-chatbot-uuid', botUUID);
     script.setAttribute('data-language', 'en');
     script.setAttribute('data-position', 'right');
     script.setAttribute('data-theme', 'light');
@@ -37,7 +39,7 @@ export default function TestEmbedPage() {
     }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h1>Voice Bot Embed Test Page</h1>
-        <p>This is a test page to check the embedded voice bot functionality.</p>
+        <p>This is a test page to check the embedded voice bot functionality and positioning.</p>
         <p><strong>Test Instructions:</strong></p>
         <ul>
           <li>The voice bot button should appear in the bottom-right corner</li>
@@ -49,17 +51,18 @@ export default function TestEmbedPage() {
           height: '200vh',
           background: 'linear-gradient(to bottom, #f0f0f0, #e0e0e0)',
           padding: '20px',
-          marginTop: '20px',
-          borderRadius: '8px'
+          marginTop: '20px'
         }}>
-          <h3>Scroll Test Area</h3>
-          <p>Scroll down to test if the voice bot button stays fixed in position.</p>
-          <p>This area is intentionally tall to demonstrate the fixed positioning.</p>
-          
-          <div style={{ marginTop: '100vh' }}>
-            <h4>Bottom of Scroll Test</h4>
-            <p>If you can see this, the voice bot should still be visible in the bottom-right corner.</p>
-          </div>
+          <h2>Scroll Test Content</h2>
+          <p>Scroll down to test if the voice bot button stays fixed in position...</p>
+          <p>The button should remain visible and in the same position relative to the viewport.</p>
+          <p>This content is intentionally tall to enable scrolling.</p>
+          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+          <p>More content to scroll through...</p>
+          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+          <p>Even more content...</p>
+          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+          <p>Bottom of the test content. The voice bot should still be visible and fixed.</p>
         </div>
       </div>
     </div>

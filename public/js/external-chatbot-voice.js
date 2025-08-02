@@ -28,6 +28,7 @@
   }
 
   const chatBotUuid = scriptTag.getAttribute('data-chatbot-uuid');
+  const directVapiAssistantId = scriptTag.getAttribute('data-vapi-assistant-id'); // New attribute for direct VAPI assistant ID
   const language = scriptTag.getAttribute('data-language') || 'en';
   const position = scriptTag.getAttribute('data-position') || 'right';
   const theme = scriptTag.getAttribute('data-theme') || 'light';
@@ -35,6 +36,7 @@
   
   console.log('🤖 VAPI Voice Bot Initializing...', {
     uuid: chatBotUuid,
+    directAssistantId: directVapiAssistantId,
     language,
     position,
     theme
@@ -62,6 +64,19 @@
   
   async function checkBotStatus() {
     try {
+      // If a direct VAPI assistant ID is provided, use it instead of checking the bot status
+      if (directVapiAssistantId) {
+        console.log('🔄 Using direct VAPI assistant ID:', directVapiAssistantId);
+        window.botInfo = {
+          uuid: chatBotUuid || 'direct-assistant',
+          name: 'Voice Bot',
+          status: 'active',
+          vapiAssistantId: directVapiAssistantId
+        };
+        return true;
+      }
+      
+      // Otherwise, check the bot status as usual
       const response = await fetch(`${chatbotHostOrigin}/api/bots/status/${chatBotUuid}`);
       
       // Check if bot not found (404)
@@ -505,8 +520,11 @@
     try {
       console.log('🎤 Activating voice bot...');
 
-      if (!window.botInfo || !window.botInfo.vapiAssistantId) {
-        console.error('No VAPI assistant ID available');
+      // Check for VAPI assistant ID from bot info or direct attribute
+      const assistantId = window.botInfo?.vapiAssistantId || directVapiAssistantId;
+      
+      if (!assistantId) {
+        console.error('No VAPI assistant ID available. botInfo:', window.botInfo, 'directVapiAssistantId:', directVapiAssistantId);
         alert('Voice bot is not properly configured. Please contact support.');
         return;
       }
@@ -517,8 +535,8 @@
       }
 
       // Initialize VAPI with the bot's assistant ID
-      if (window.vapiSDK && window.botInfo.vapiAssistantId) {
-        console.log('🚀 Starting VAPI with assistant:', window.botInfo.vapiAssistantId);
+      if (window.vapiSDK && assistantId) {
+        console.log('🚀 Starting VAPI with assistant:', assistantId);
 
         // Get VAPI public key from environment
         const vapiPublicKey = 'a44bf342-aaf1-440e-98c4-0076388fecf8';
@@ -526,7 +544,7 @@
         // Start VAPI call with the specific assistant
         window.vapiInstance = window.vapiSDK.run({
           apiKey: vapiPublicKey,
-          assistant: window.botInfo.vapiAssistantId,
+          assistant: assistantId,
           config: {
             // Additional configuration if needed
           }
@@ -548,7 +566,7 @@
 
         console.log('✅ VAPI voice bot activated successfully!');
       } else {
-        throw new Error('VAPI SDK not available');
+        throw new Error('VAPI SDK not available or no assistant ID');
       }
 
     } catch (error) {

@@ -1,57 +1,60 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-
-  // Disable strict mode for deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
-  // Remove Azure-specific output configuration for Vercel compatibility
-  // output: 'standalone', // Removed for Vercel
-
-  // Webpack configuration for better compatibility
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
   webpack: (config: any, { isServer }: { isServer: boolean }) => {
-    // Simple fallback for missing Next.js internal modules
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      "next/dist/server/route-modules/app-page/vendored/contexts/loadable": false,
-    };
-
-    // Ignore missing modules in externals
     if (!isServer) {
-      config.externals = config.externals || [];
-      config.externals.push({
-        "next/dist/server/route-modules/app-page/vendored/contexts/loadable": "{}",
-      });
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
     }
-
     return config;
   },
-
-  // Security: Block access to uploads directory
   async rewrites() {
     return [
       {
-        source: '/uploads/:path*',
-        destination: '/api/blocked', // This will return 404
+        source: '/api/bots/status/:uuid',
+        destination: '/api/bots/status/:uuid',
       },
     ];
   },
-
-  // Additional security headers
   async headers() {
     return [
       {
-        source: '/uploads/:path*',
+        source: '/api/bots/status/:uuid',
         headers: [
           {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow, nosnippet, noarchive',
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
           },
         ],
       },

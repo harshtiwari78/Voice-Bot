@@ -4,11 +4,13 @@ import { useEffect } from 'react';
 
 export default function TestEmbedPage() {
   useEffect(() => {
-    // Dynamically load the voice bot script
+    // Dynamically load the voice bot script with dynamic UUID
+    const botUUID = 'YOUR_BOT_UUID_HERE'; // Replace or fetch this UUID dynamically as needed
+
     const script = document.createElement('script');
     script.defer = true;
     script.src = '/js/external-chatbot-voice.js';
-    script.setAttribute('data-chatbot-uuid', '61ff25b8-896e-4b74-9161-1f4872a9b53b');
+    script.setAttribute('data-chatbot-uuid', botUUID);
     script.setAttribute('data-language', 'en');
     script.setAttribute('data-position', 'right');
     script.setAttribute('data-theme', 'light');

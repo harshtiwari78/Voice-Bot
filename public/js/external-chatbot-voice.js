@@ -85,7 +85,7 @@
         uuid: chatBotUuid,
         name: 'Test Voice Bot',
         status: 'active',
-        vapiAssistantId: 'a635d32d-277b-455b-a87f-11f4a873fd7b' // Use real VAPI assistant ID
+        vapiAssistantId: chatBotUuid // Use the actual bot UUID as fallback
       };
 
       return true; // Return true to show active widget for testing

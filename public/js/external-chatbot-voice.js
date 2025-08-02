@@ -97,7 +97,8 @@
         return false;
       }
     }
-
+  }
+  
   // Helper function to inject CSS for fixed positioning
   function injectFixedPositionCSS() {
     // Inject CSS to ensure fixed positioning works regardless of external styles

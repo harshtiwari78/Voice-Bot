@@ -79,18 +79,24 @@
     } catch (error) {
       console.error('Failed to check bot status:', error);
 
-      // Fallback: Create temporary bot info for testing
-      console.log('🧪 Creating fallback bot info for testing...');
-      window.botInfo = {
-        uuid: chatBotUuid,
-        name: 'Test Voice Bot',
-        status: 'active',
-        vapiAssistantId: chatBotUuid // Use the actual bot UUID as fallback
-      };
-
-      return true; // Return true to show active widget for testing
+      // Only use fallback in development environments
+      if (window.location.hostname === 'localhost' || chatbotHostOrigin.includes('localhost')) {
+        // Fallback: Create temporary bot info for testing (development only)
+        console.log('🧪 Creating fallback bot info for testing...');
+        window.botInfo = {
+          uuid: chatBotUuid,
+          name: 'Test Voice Bot',
+          status: 'active',
+          vapiAssistantId: chatBotUuid // Use the actual bot UUID as fallback
+        };
+        
+        return true; // Return true to show active widget for testing
+      } else {
+        // In production, don't use fallback
+        console.error('Production environment - not using fallback assistant ID');
+        return false;
+      }
     }
-  }
 
   // Helper function to inject CSS for fixed positioning
   function injectFixedPositionCSS() {

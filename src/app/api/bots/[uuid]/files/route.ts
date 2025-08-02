@@ -11,16 +11,7 @@ import { addFilesToExistingRagBot } from '@/lib/googleService';
 import { documentService } from '@/lib/services/documentService';
 import { botService } from '@/lib/services/botService';
 
-// In-memory bot registry (same as in create route)
-declare global {
-  var botRegistry: Map<string, any>;
-}
-
-if (!global.botRegistry) {
-  global.botRegistry = new Map();
-}
-
-const botRegistry = global.botRegistry;
+// Remove the in-memory bot registry
 
 // GET /api/bots/[uuid]/files - List files for a bot
 export async function GET(
@@ -38,9 +29,9 @@ export async function GET(
 
     const botUuid = params.uuid;
 
-    // Verify bot access
-    const botRecord = botRegistry.get(botUuid);
-    if (!verifyBotAccess(botUuid, userId, botRecord)) {
+    // Verify bot access using database
+    const bot = await botService.getBotByUuid(botUuid);
+    if (!bot || bot.userId !== userId) {
       return NextResponse.json(
         { success: false, error: 'Bot not found or access denied' },
         { status: 404 }
@@ -90,9 +81,9 @@ export async function POST(
 
     const botUuid = params.uuid;
 
-    // Verify bot access
-    const botRecord = botRegistry.get(botUuid);
-    if (!verifyBotAccess(botUuid, userId, botRecord)) {
+    // Verify bot access using database
+    const bot = await botService.getBotByUuid(botUuid);
+    if (!bot || bot.userId !== userId) {
       return NextResponse.json(
         { success: false, error: 'Bot not found or access denied' },
         { status: 404 }
@@ -100,7 +91,6 @@ export async function POST(
     }
 
     // Check if bot is RAG-enabled
-    const bot = await botService.getBotByUuid(botUuid);
     if (!bot || !bot.ragEnabled) {
       return NextResponse.json(
         { success: false, error: 'Bot not found or RAG not enabled' },

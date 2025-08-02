@@ -65,6 +65,7 @@ export async function GET(
         const finalBot = await botService.updateBot(uuid, {
           ...updatedBot,
           status: 'active',
+          vapiAssistantId: `vapi_assistant_${uuid.substring(0, 8)}`,
         });
         console.log(`✅ Bot ${uuid} activated successfully`);
       }, 5000);
@@ -135,8 +136,8 @@ export async function PATCH(
       return response;
     }
 
-    // Get bot from database
-    const bot = await botService.getBotByUuid(uuid);
+    // Get bot from registry
+    const bot = botRegistry.get(uuid);
 
     if (!bot) {
       const response = NextResponse.json(
@@ -149,18 +150,18 @@ export async function PATCH(
       return response;
     }
 
-    // Update the bot's VAPI assistant ID in the database
-    const updatedBot = await botService.updateBot(uuid, {
-      vapiAssistantId: vapiAssistantId
-    });
+    // Update the bot's VAPI assistant ID
+    bot.vapiAssistantId = vapiAssistantId;
+    bot.updatedAt = new Date().toISOString();
+    botRegistry.set(uuid, bot);
 
     console.log(`✅ Updated bot ${uuid} with new VAPI assistant ID: ${vapiAssistantId}`);
 
     const response = NextResponse.json({
       success: true,
       message: 'Bot assistant ID updated successfully',
-      uuid: updatedBot?.uuid,
-      vapiAssistantId: updatedBot?.vapiAssistantId
+      uuid: bot.uuid,
+      vapiAssistantId: bot.vapiAssistantId
     });
 
     // Add CORS headers

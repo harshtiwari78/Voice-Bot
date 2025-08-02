@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { botService } from '@/lib/services/botService';
 
-// Handle POST request for bot activation/deactivation
+// Temporary in-memory storage (replace with database in production)
+const botRegistry = new Map();
+
+// Admin activation endpoint
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -14,9 +16,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse request body
-    const body = await request.json();
-    const { botUuid, action } = body;
+    const { botUuid, action } = await request.json();
 
     if (!botUuid) {
       return NextResponse.json(
@@ -25,9 +25,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get bot from database
-    const bot = await botService.getBotByUuid(botUuid);
-
+    // Get bot from registry
+    const bot = botRegistry.get(botUuid);
     if (!bot) {
       return NextResponse.json(
         { success: false, error: 'Bot not found' },
@@ -38,31 +37,31 @@ export async function POST(request: NextRequest) {
     // Check if user owns the bot
     if (bot.userId !== userId) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized to manage this bot' },
+        { success: false, error: 'Unauthorized - not bot owner' },
         { status: 403 }
       );
     }
 
     switch (action) {
       case 'activate':
-        if (bot.status !== 'active') {
-          // Update bot status to activating
-          await botService.updateBotStatus(botUuid, 'activating');
+        if (bot.status === 'pending') {
+          bot.status = 'activating';
+          botRegistry.set(botUuid, bot);
           
           // Simulate VAPI assistant creation process
           setTimeout(async () => {
             try {
               // In a real implementation, this would create the VAPI assistant
-              // Keep the existing vapiAssistantId if it exists
-              await botService.updateBot(botUuid, {
-                status: 'active',
-                activatedAt: new Date().toISOString(),
-              });
+              bot.status = 'active';
+              bot.vapiAssistantId = `vapi_assistant_${botUuid.substring(0, 8)}`;
+              bot.activatedAt = new Date().toISOString();
+              botRegistry.set(botUuid, bot);
               
               console.log(`✅ Bot ${botUuid} activated successfully`);
             } catch (error) {
               console.error(`❌ Failed to activate bot ${botUuid}:`, error);
-              await botService.updateBotStatus(botUuid, 'failed');
+              bot.status = 'failed';
+              botRegistry.set(botUuid, bot);
             }
           }, 3000); // 3 second delay to simulate processing
           
@@ -80,10 +79,9 @@ export async function POST(request: NextRequest) {
 
       case 'deactivate':
         if (bot.status === 'active') {
-          await botService.updateBot(botUuid, {
-            status: 'pending',
-            vapiAssistantId: undefined
-          });
+          bot.status = 'pending';
+          bot.vapiAssistantId = undefined;
+          botRegistry.set(botUuid, bot);
           
           return NextResponse.json({
             success: true,
@@ -128,25 +126,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all bots for this user from database
-    const userBots = await botService.getBotsByUserId(userId);
-
-    // Format the response to match the expected format in the AdminPanel component
-    const formattedBots = userBots.map(bot => ({
-      uuid: bot.uuid,
-      name: bot.name,
-      status: bot.status,
-      createdAt: bot.createdAt,
-      activationScheduledAt: bot.activationScheduledAt,
-      activatedAt: bot.activatedAt,
-      documentsProcessed: bot.documentsProcessed,
-      ragEnabled: bot.ragEnabled
-    }));
+    // Get all bots for this user
+    const userBots = Array.from(botRegistry.entries())
+      .filter(([, bot]) => bot.userId === userId)
+      .map(([uuid, bot]) => ({
+        uuid,
+        name: bot.name,
+        status: bot.status,
+        createdAt: bot.createdAt,
+        activationScheduledAt: bot.activationScheduledAt,
+        activatedAt: bot.activatedAt,
+        documentsProcessed: bot.documentsProcessed,
+        ragEnabled: bot.ragEnabled
+      }));
 
     return NextResponse.json({
       success: true,
-      bots: formattedBots,
-      totalBots: formattedBots.length
+      bots: userBots,
+      totalBots: userBots.length
     });
 
   } catch (error) {
@@ -154,7 +151,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to retrieve bots' 
+        error: error instanceof Error ? error.message : 'Failed to get bots' 
       },
       { status: 500 }
     );

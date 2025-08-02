@@ -28,7 +28,6 @@
   }
 
   const chatBotUuid = scriptTag.getAttribute('data-chatbot-uuid');
-  const directVapiAssistantId = scriptTag.getAttribute('data-vapi-assistant-id'); // New attribute for direct VAPI assistant ID
   const language = scriptTag.getAttribute('data-language') || 'en';
   const position = scriptTag.getAttribute('data-position') || 'right';
   const theme = scriptTag.getAttribute('data-theme') || 'light';
@@ -36,7 +35,6 @@
   
   console.log('🤖 VAPI Voice Bot Initializing...', {
     uuid: chatBotUuid,
-    directAssistantId: directVapiAssistantId,
     language,
     position,
     theme
@@ -64,29 +62,7 @@
   
   async function checkBotStatus() {
     try {
-      // If a direct VAPI assistant ID is provided, use it instead of checking the bot status
-      if (directVapiAssistantId) {
-        console.log('🔄 Using direct VAPI assistant ID:', directVapiAssistantId);
-        window.botInfo = {
-          uuid: chatBotUuid || 'direct-assistant',
-          name: 'Voice Bot',
-          status: 'active',
-          vapiAssistantId: directVapiAssistantId
-        };
-        return true;
-      }
-      
-      // Otherwise, check the bot status as usual
       const response = await fetch(`${chatbotHostOrigin}/api/bots/status/${chatBotUuid}`);
-      
-      // Check if bot not found (404)
-      if (response.status === 404) {
-        console.error(`❌ Bot not found: ${chatBotUuid}`);
-        // Create a simple error notification instead of the pending widget
-        createErrorWidget(`Bot not found (ID: ${chatBotUuid.substring(0, 8)}...)`);
-        return false;
-      }
-      
       const result = await response.json();
 
       // Store bot info globally for VAPI integration
@@ -103,127 +79,16 @@
     } catch (error) {
       console.error('Failed to check bot status:', error);
 
-      // Only use fallback in development environments
-      if (window.location.hostname === 'localhost' || chatbotHostOrigin.includes('localhost')) {
-        // Fallback: Create temporary bot info for testing (development only)
-        console.log('🧪 Creating fallback bot info for testing...');
-        window.botInfo = {
-          uuid: chatBotUuid,
-          name: 'Test Voice Bot',
-          status: 'active',
-          vapiAssistantId: chatBotUuid // Use the actual bot UUID as fallback
-        };
-        
-        return true; // Return true to show active widget for testing
-      } else {
-        // In production, show error widget
-        console.error('Production environment - not using fallback assistant ID');
-        createErrorWidget('Error connecting to voice bot service');
-        return false;
-      }
-    }
-  }
-  
-  // Function to create an error widget
-  function createErrorWidget(errorMessage) {
-    // Inject CSS to ensure fixed positioning works
-    injectFixedPositionCSS();
+      // Fallback: Create temporary bot info for testing
+      console.log('🧪 Creating fallback bot info for testing...');
+      window.botInfo = {
+        uuid: chatBotUuid,
+        name: 'Test Voice Bot',
+        status: 'active',
+        vapiAssistantId: chatBotUuid // Use the actual bot UUID as fallback
+      };
 
-    // Create error widget
-    const widgetMarkup = `
-      <div id="vapi-voice-bot-container" style="
-        position: fixed !important;
-        ${position === 'right' ? 'right: 20px !important;' : 'left: 20px !important;'}
-        bottom: 20px !important;
-        top: auto !important;
-        z-index: 2147483647 !important;
-        pointer-events: auto !important;
-        transform: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        outline: none !important;
-        box-sizing: border-box !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        width: auto !important;
-        height: auto !important;
-        max-width: none !important;
-        max-height: none !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        float: none !important;
-        clear: none !important;
-        overflow: visible !important;
-      ">
-        <div id="vapi-bot-widget" style="
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-          border: 3px solid #fff;
-          opacity: 0.7;
-          position: relative;
-          z-index: 1;
-        ">
-          <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-          </svg>
-        </div>
-        <div id="vapi-error-tooltip" style="
-          position: absolute;
-          bottom: 70px;
-          ${position === 'right' ? 'right: 0;' : 'left: 0;'}
-          background: rgba(0,0,0,0.8);
-          color: white;
-          padding: 8px 12px;
-          border-radius: 6px;
-          font-size: 12px;
-          white-space: nowrap;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          pointer-events: none;
-        ">
-          ${errorMessage}
-        </div>
-      </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', widgetMarkup);
-
-    // Verify error widget creation
-    const container = document.getElementById('vapi-voice-bot-container');
-    if (container) {
-      console.log('✅ Error widget container created');
-      
-      // Force positioning with JavaScript as backup
-      enforceFixedPositioning(container);
-    }
-
-    // Add hover effects for error widget
-    const widget = document.getElementById('vapi-bot-widget');
-    const tooltip = document.getElementById('vapi-error-tooltip');
-    
-    if (widget && tooltip) {
-      widget.addEventListener('mouseenter', () => {
-        tooltip.style.opacity = '1';
-      });
-      
-      widget.addEventListener('mouseleave', () => {
-        tooltip.style.opacity = '0';
-      });
-      
-      widget.addEventListener('click', () => {
-        alert(`Voice bot error: ${errorMessage}. Please contact the site administrator.`);
-      });
+      return true; // Return true to show active widget for testing
     }
   }
 
@@ -520,11 +385,8 @@
     try {
       console.log('🎤 Activating voice bot...');
 
-      // Check for VAPI assistant ID from bot info or direct attribute
-      const assistantId = window.botInfo?.vapiAssistantId || directVapiAssistantId;
-      
-      if (!assistantId) {
-        console.error('No VAPI assistant ID available. botInfo:', window.botInfo, 'directVapiAssistantId:', directVapiAssistantId);
+      if (!window.botInfo || !window.botInfo.vapiAssistantId) {
+        console.error('No VAPI assistant ID available');
         alert('Voice bot is not properly configured. Please contact support.');
         return;
       }
@@ -535,8 +397,8 @@
       }
 
       // Initialize VAPI with the bot's assistant ID
-      if (window.vapiSDK && assistantId) {
-        console.log('🚀 Starting VAPI with assistant:', assistantId);
+      if (window.vapiSDK && window.botInfo.vapiAssistantId) {
+        console.log('🚀 Starting VAPI with assistant:', window.botInfo.vapiAssistantId);
 
         // Get VAPI public key from environment
         const vapiPublicKey = 'a44bf342-aaf1-440e-98c4-0076388fecf8';
@@ -544,7 +406,7 @@
         // Start VAPI call with the specific assistant
         window.vapiInstance = window.vapiSDK.run({
           apiKey: vapiPublicKey,
-          assistant: assistantId,
+          assistant: window.botInfo.vapiAssistantId,
           config: {
             // Additional configuration if needed
           }
@@ -566,7 +428,7 @@
 
         console.log('✅ VAPI voice bot activated successfully!');
       } else {
-        throw new Error('VAPI SDK not available or no assistant ID');
+        throw new Error('VAPI SDK not available');
       }
 
     } catch (error) {

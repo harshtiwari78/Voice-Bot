@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { 
-  getFileFromBot
+  getFileFromBot, 
+  verifyBotAccess 
 } from '@/lib/localFileStorage';
-import { botService } from '@/lib/services/botService';
+
+// In-memory bot registry (same as in create route)
+declare global {
+  var botRegistry: Map<string, any>;
+}
+
+if (!global.botRegistry) {
+  global.botRegistry = new Map();
+}
+
+const botRegistry = global.botRegistry;
 
 // GET /api/bots/[uuid]/files/[filename] - Download a specific file
 export async function GET(
@@ -22,9 +33,9 @@ export async function GET(
     const botUuid = params.uuid;
     const filename = decodeURIComponent(params.filename);
 
-    // Verify bot access using database
-    const bot = await botService.getBotByUuid(botUuid);
-    if (!bot || bot.userId !== userId) {
+    // Verify bot access
+    const botRecord = botRegistry.get(botUuid);
+    if (!verifyBotAccess(botUuid, userId, botRecord)) {
       return NextResponse.json(
         { success: false, error: 'Bot not found or access denied' },
         { status: 404 }
